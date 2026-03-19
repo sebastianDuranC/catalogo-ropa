@@ -7,6 +7,7 @@ import classes from './layout.module.css';
 
 const navItems = [
   { href: '/admin', label: 'Productos', icon: '📦' },
+  { href: '/admin/categories', label: 'Categorías', icon: '🏷️' },
   { href: '/admin/settings', label: 'Configuración', icon: '⚙️' },
 ];
 

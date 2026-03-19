@@ -10,7 +10,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 
   if (!cloudName || !uploadPreset) {
-    throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME y NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET no están configurados en las variables de entorno.');
+    throw new Error('Variables de entorno de Cloudinary no configuradas.');
   }
 
   const formData = new FormData();
@@ -40,6 +40,7 @@ function ProductFormContent() {
   const [formData, setFormData] = useState({
     photo: '', name: '', description: '', size: '', color: '', price: '', category: ''
   });
+  const [categories, setCategories] = useState<{ id: number; name: string }[]>([]);
   const [loading, setLoading] = useState(!!id);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -47,7 +48,10 @@ function ProductFormContent() {
   const [uploadError, setUploadError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Load categories and product (if editing)
   useEffect(() => {
+    fetch('/api/categories').then(r => r.json()).then(setCategories).catch(() => {});
+
     if (id) {
       fetch(`/api/products/${id}`)
         .then(res => { if (!res.ok) throw new Error(); return res.json(); })
@@ -69,26 +73,18 @@ function ProductFormContent() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Solo se permiten archivos de imagen (JPG, PNG, WEBP).');
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      setUploadError('La imagen no puede superar los 10 MB.');
-      return;
-    }
+    if (!file.type.startsWith('image/')) { setUploadError('Solo se permiten imágenes.'); return; }
+    if (file.size > 10 * 1024 * 1024) { setUploadError('La imagen no puede superar los 10 MB.'); return; }
 
     setUploadError('');
-    const localUrl = URL.createObjectURL(file);
-    setPreview(localUrl);
+    setPreview(URL.createObjectURL(file));
     setUploading(true);
 
     try {
       const url = await uploadToCloudinary(file);
       setFormData(prev => ({ ...prev, photo: url }));
     } catch (err: any) {
-      console.error('Upload error:', err);
-      setUploadError(err.message || 'Error al subir la imagen. Verifica las variables de entorno en Vercel.');
+      setUploadError(err.message || 'Error al subir la imagen.');
       setPreview(formData.photo);
     } finally {
       setUploading(false);
@@ -97,12 +93,11 @@ function ProductFormContent() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (uploading) return alert('Espera a que termine la subida de la foto.');
+    if (uploading) return alert('Espera a que la foto termine de subir.');
     setSaving(true);
     const url = id ? `/api/products/${id}` : '/api/products';
-    const method = id ? 'PUT' : 'POST';
     await fetch(url, {
-      method,
+      method: id ? 'PUT' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...formData, price: Number(formData.price) || 0 })
     });
@@ -122,7 +117,8 @@ function ProductFormContent() {
       <div className="card" style={{ maxWidth: '800px' }}>
         <form onSubmit={handleSubmit} className={classes.formGrid}>
 
-          <div className={`${classes.inputGroup}`} style={{ gridColumn: '1 / -1' }}>
+          {/* Upload foto */}
+          <div className={classes.inputGroup} style={{ gridColumn: '1 / -1' }}>
             <label>Foto del Producto</label>
             <div className={classes.uploadArea} onClick={() => !uploading && fileInputRef.current?.click()}>
               {preview ? (
@@ -139,7 +135,7 @@ function ProductFormContent() {
               {uploading && (
                 <div className={classes.uploadOverlay}>
                   <div className={classes.spinner}></div>
-                  <p>Subiendo imagen a Cloudinary...</p>
+                  <p>Subiendo imagen...</p>
                 </div>
               )}
             </div>
@@ -160,10 +156,31 @@ function ProductFormContent() {
             <label>Nombre del Producto *</label>
             <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Ej: Camiseta Básica" />
           </div>
+
+          {/* Categoría como SELECT */}
           <div className={classes.inputGroup}>
             <label>Categoría *</label>
-            <input required type="text" value={formData.category} onChange={e => setFormData({...formData, category: e.target.value})} placeholder="Ej: Chaquetas, Vestidos..." />
+            {categories.length > 0 ? (
+              <div className={classes.selectWrapper}>
+                <select
+                  required
+                  value={formData.category}
+                  onChange={e => setFormData({...formData, category: e.target.value})}
+                >
+                  <option value="" disabled>— Selecciona una categoría —</option>
+                  {categories.map(c => (
+                    <option key={c.id} value={c.name}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div style={{ padding: '0.75rem 1rem', borderRadius: '0.5rem', border: '1px solid #fde68a', backgroundColor: '#fffbeb', fontSize: '0.875rem', color: '#92400e' }}>
+                ⚠️ Debes crear categorías primero en{' '}
+                <Link href="/admin/categories" style={{ fontWeight: 700, textDecoration: 'underline', color: '#4338ca' }}>Gestión de Categorías</Link>
+              </div>
+            )}
           </div>
+
           <div className={classes.inputGroup}>
             <label>Precio (Bs.) *</label>
             <input required type="number" step="0.01" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} placeholder="25.50" />
@@ -182,7 +199,7 @@ function ProductFormContent() {
           </div>
           
           <div style={{ gridColumn: '1 / -1', display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
-            <button type="submit" className="btn" disabled={uploading || saving} style={{ padding: '0.75rem 2rem', opacity: (uploading || saving) ? 0.7 : 1, cursor: (uploading || saving) ? 'not-allowed' : 'pointer' }}>
+            <button type="submit" className="btn" disabled={uploading || saving} style={{ padding: '0.75rem 2rem', opacity: (uploading || saving) ? 0.7 : 1 }}>
               {saving ? 'Guardando...' : id ? 'Actualizar Producto' : 'Guardar Producto'}
             </button>
             <Link href="/admin" className="btn btn-secondary" style={{ padding: '0.75rem 1.5rem' }}>Cancelar</Link>

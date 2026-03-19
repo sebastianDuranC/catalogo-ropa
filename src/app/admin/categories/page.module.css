@@ -1,0 +1,86 @@
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.addForm {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .addForm {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.categoryList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.categoryItem {
+  padding: 0.85rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.categoryItem:last-child {
+  border-bottom: none;
+}
+
+.categoryItem:hover {
+  background-color: #f8fafc;
+}
+
+.viewRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.catInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.catDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #4338ca, #7c3aed);
+  flex-shrink: 0;
+}
+
+.catName {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--foreground);
+}
+
+.catActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.editRow {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .viewRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}

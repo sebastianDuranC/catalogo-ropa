@@ -115,3 +115,41 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── SELECT de Categoría ── */
+.selectWrapper {
+  position: relative;
+}
+
+.selectWrapper::after {
+  content: '▾';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #64748b;
+  font-size: 1rem;
+}
+
+.selectWrapper select {
+  width: 100%;
+  padding: 0.75rem 2.5rem 0.75rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  background-color: var(--background);
+  color: var(--foreground);
+  cursor: pointer;
+  appearance: none;
+  transition: var(--transition);
+}
+
+.selectWrapper select:focus {
+  outline: none;
+  border-color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.12);
+  background-color: var(--surface);
+}
+

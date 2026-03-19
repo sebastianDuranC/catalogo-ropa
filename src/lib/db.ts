@@ -26,6 +26,11 @@ export interface Product {
   category: string;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+}
+
 export interface DBType {
   business: BusinessInfo;
   products: Product[];
@@ -52,6 +57,12 @@ async function ensureTablesExist(): Promise<void> {
     )
   `;
   await sql`
+    CREATE TABLE IF NOT EXISTS categories (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL UNIQUE
+    )
+  `;
+  await sql`
     CREATE TABLE IF NOT EXISTS products (
       id TEXT PRIMARY KEY,
       photo TEXT DEFAULT '',
@@ -69,6 +80,8 @@ async function ensureTablesExist(): Promise<void> {
     await sql`INSERT INTO business (name, phone) VALUES ('Mi Catálogo', '')`;
   }
 }
+
+// ─── BUSINESS ─────────────────────────────────────────────────
 
 export async function getDB(): Promise<DBType> {
   const sql = getSQL();
@@ -120,6 +133,48 @@ export async function saveBusinessInfo(data: Partial<BusinessInfo>): Promise<voi
     WHERE id = (SELECT id FROM business LIMIT 1)
   `;
 }
+
+// ─── CATEGORIES ───────────────────────────────────────────────
+
+export async function getCategories(): Promise<Category[]> {
+  const sql = getSQL();
+  await ensureTablesExist();
+  const rows = await sql`SELECT * FROM categories ORDER BY name ASC`;
+  return rows.map((c: any) => ({ id: c.id, name: c.name }));
+}
+
+export async function createCategory(name: string): Promise<Category> {
+  const sql = getSQL();
+  await ensureTablesExist();
+  const rows = await sql`
+    INSERT INTO categories (name) VALUES (${name})
+    ON CONFLICT (name) DO NOTHING
+    RETURNING id, name
+  `;
+  if (rows.length === 0) {
+    // Already existed, return it
+    const existing = await sql`SELECT id, name FROM categories WHERE name = ${name}`;
+    return { id: existing[0].id, name: existing[0].name };
+  }
+  return { id: rows[0].id, name: rows[0].name };
+}
+
+export async function updateCategory(id: number, name: string): Promise<Category | null> {
+  const sql = getSQL();
+  const rows = await sql`
+    UPDATE categories SET name = ${name} WHERE id = ${id} RETURNING id, name
+  `;
+  if (!rows.length) return null;
+  return { id: rows[0].id, name: rows[0].name };
+}
+
+export async function deleteCategory(id: number): Promise<boolean> {
+  const sql = getSQL();
+  const result = await sql`DELETE FROM categories WHERE id = ${id} RETURNING id`;
+  return result.length > 0;
+}
+
+// ─── PRODUCTS ─────────────────────────────────────────────────
 
 export async function getProducts(): Promise<Product[]> {
   const sql = getSQL();
@@ -191,5 +246,5 @@ export async function deleteProduct(id: string): Promise<boolean> {
 
 // Legacy compat
 export async function saveDB(_data: DBType): Promise<void> {
-  throw new Error('saveDB is deprecated. Use saveBusinessInfo, createProduct, updateProduct or deleteProduct.');
+  throw new Error('saveDB is deprecated.');
 }
