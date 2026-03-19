@@ -5,6 +5,33 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import classes from './page.module.css';
 
+async function uploadToCloudinary(file: File): Promise<string> {
+  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
+
+  if (!cloudName || !uploadPreset) {
+    throw new Error('NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME y NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET no están configurados en las variables de entorno.');
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('upload_preset', uploadPreset);
+  formData.append('folder', 'catalogo-ropa');
+
+  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error?.message || 'Upload failed');
+  }
+
+  const data = await response.json();
+  return data.secure_url;
+}
+
 function ProductFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,6 +44,7 @@ function ProductFormContent() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState<string>('');
+  const [uploadError, setUploadError] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -41,24 +69,26 @@ function ProductFormContent() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validar tipo y tamaño
-    if (!file.type.startsWith('image/')) return alert('Solo se permiten archivos de imagen.');
-    if (file.size > 10 * 1024 * 1024) return alert('La imagen no puede superar los 10 MB.');
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Solo se permiten archivos de imagen (JPG, PNG, WEBP).');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('La imagen no puede superar los 10 MB.');
+      return;
+    }
 
-    // Vista previa inmediata
+    setUploadError('');
     const localUrl = URL.createObjectURL(file);
     setPreview(localUrl);
-
     setUploading(true);
+
     try {
-      const form = new FormData();
-      form.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: form });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.error || 'Upload failed');
-      setFormData(prev => ({ ...prev, photo: result.url }));
-    } catch (err) {
-      alert('Error al subir la imagen. Revisa la configuración de Cloudinary.');
+      const url = await uploadToCloudinary(file);
+      setFormData(prev => ({ ...prev, photo: url }));
+    } catch (err: any) {
+      console.error('Upload error:', err);
+      setUploadError(err.message || 'Error al subir la imagen. Verifica las variables de entorno en Vercel.');
       setPreview(formData.photo);
     } finally {
       setUploading(false);
@@ -94,7 +124,7 @@ function ProductFormContent() {
 
           <div className={`${classes.inputGroup}`} style={{ gridColumn: '1 / -1' }}>
             <label>Foto del Producto</label>
-            <div className={classes.uploadArea} onClick={() => fileInputRef.current?.click()}>
+            <div className={classes.uploadArea} onClick={() => !uploading && fileInputRef.current?.click()}>
               {preview ? (
                 <img src={preview} alt="Vista previa" className={classes.previewImage} />
               ) : (
@@ -108,11 +138,17 @@ function ProductFormContent() {
               )}
               {uploading && (
                 <div className={classes.uploadOverlay}>
-                  <p>Subiendo imagen...</p>
+                  <div className={classes.spinner}></div>
+                  <p>Subiendo imagen a Cloudinary...</p>
                 </div>
               )}
             </div>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChange} style={{ display: 'none' }} />
+            {uploadError && (
+              <p style={{ color: '#dc2626', fontSize: '0.875rem', marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#fef2f2', borderRadius: '0.5rem', border: '1px solid #fecaca' }}>
+                ⚠️ {uploadError}
+              </p>
+            )}
             {preview && !uploading && (
               <button type="button" className="btn btn-secondary" onClick={() => fileInputRef.current?.click()} style={{ marginTop: '0.5rem', width: 'fit-content', fontSize: '0.875rem', padding: '0.45rem 0.85rem' }}>
                 Cambiar foto
