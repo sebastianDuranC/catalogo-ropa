@@ -1,0 +1,76 @@
+{
+  "business": {
+    "name": "Moda y Estilos",
+    "phone": "59169261831",
+    "social": "https://www.tiktok.com/@modayestilos_?_r=1&_t=ZS-94oriPXIKKA",
+    "socialLinks": [
+      {
+        "url": "https://www.tiktok.com/@modayestilos_",
+        "iconUrl": "https://cdn-icons-png.flaticon.com/512/3046/3046121.png"
+      }
+    ],
+    "heroSubtitle": "Ropa de segunda mano de calidad"
+  },
+  "products": [
+    {
+      "id": "1",
+      "photo": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&q=80",
+      "name": "Camiseta Básica Blanca",
+      "description": "Camiseta de algodón 100% muy cómoda y fresca.",
+      "size": "M",
+      "color": "Blanco",
+      "price": 25,
+      "category": "General"
+    },
+    {
+      "id": "2",
+      "photo": "https://images.unsplash.com/photo-1542272604-ea4b74100dc0?w=500&q=80",
+      "name": "Chaqueta de Cuero",
+      "description": "Chaqueta de cuero genuino estilo vintage.",
+      "size": "L",
+      "color": "Negro",
+      "price": 120,
+      "category": "General"
+    },
+    {
+      "id": "819aa511-8e12-470d-b806-dfd9b7fe6e22",
+      "photo": "https://images.unsplash.com/photo-1521369909029-2afed882baee?w=500&q=80",
+      "name": "Gorra Negra",
+      "description": "Excelente gorra casual",
+      "size": "Unica",
+      "color": "Negro",
+      "price": 15.5,
+      "category": "Accesorios"
+    },
+    {
+      "id": "0bbe3732-2998-4249-a6d8-0d05e41c75bc",
+      "photo": "",
+      "name": "",
+      "description": "",
+      "size": "",
+      "color": "",
+      "price": 0,
+      "category": "General"
+    },
+    {
+      "id": "cfed4e16-5364-4313-90b9-8752b85cf2e5",
+      "photo": "https://images.unsplash.com/photo-1542272604-ea4b74100dc0?w=500",
+      "name": "Chaqueta de Mezclilla Vintage",
+      "description": "Chaqueta premium vintage",
+      "size": "L",
+      "color": "Azul Cl",
+      "price": 150,
+      "category": "Chaquetas"
+    },
+    {
+      "id": "ca236bb8-498b-4475-8879-2d39e5ff05c7",
+      "photo": "",
+      "name": "",
+      "description": "",
+      "size": "",
+      "color": "",
+      "price": 0,
+      "category": "General"
+    }
+  ]
+}
