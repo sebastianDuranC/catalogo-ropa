@@ -72,7 +72,8 @@ export default function CatalogClient({ business, products }: { business: Busine
           <div className={classes.grid}>
             {filteredProducts.map(product => {
               const strPrice = `Bs. ${product.price.toFixed(2)}`;
-              const message = `¡Hola! Me interesa este producto: *${product.name}* (Talla: ${product.size}, Color: ${product.color}). Precio: ${strPrice}. ¿Está disponible? Aquí la imagen: ${product.photo}`;
+              const photoLine = product.photo ? `\n\n🖼 Foto del producto: ${product.photo}` : '';
+              const message = `¡Hola! 👋 Estoy interesado/a en este producto de *${business.name}*:\n\n👗 *${product.name}*\n📋 Categoría: ${product.category}\n📏 Talla: ${product.size}\n🎨 Color: ${product.color}\n💵 Precio: ${strPrice}${photoLine}\n\n¿Está disponible?`;
               const whatsappUrl = `https://wa.me/${business.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
 
               return (

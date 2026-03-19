@@ -7,6 +7,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+export const maxDuration = 30;
+
 export async function POST(request: Request) {
   try {
     const formData = await request.formData();
@@ -16,26 +18,28 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
+    if (!file.type.startsWith('image/')) {
+      return NextResponse.json({ error: 'Only image files allowed' }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const result = await new Promise<{ secure_url: string }>((resolve, reject) => {
-      cloudinary.uploader.upload_stream(
-        {
-          folder: 'catalogo-ropa',
-          resource_type: 'image',
-          transformation: [{ width: 800, height: 800, crop: 'limit', quality: 'auto:good' }]
-        },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result as { secure_url: string });
-        }
-      ).end(buffer);
+    // Base64 upload (more reliable than streams in Vercel)
+    const base64 = buffer.toString('base64');
+    const dataURI = `data:${file.type};base64,${base64}`;
+
+    const result = await cloudinary.uploader.upload(dataURI, {
+      folder: 'catalogo-ropa',
+      resource_type: 'image',
+      transformation: [
+        { width: 1000, height: 1000, crop: 'limit', quality: 'auto:good', fetch_format: 'auto' }
+      ]
     });
 
     return NextResponse.json({ url: result.secure_url });
-  } catch (error) {
-    console.error('Upload error:', error);
-    return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Cloudinary upload error:', error?.message || error);
+    return NextResponse.json({ error: 'Failed to upload image. Check Cloudinary configuration.' }, { status: 500 });
   }
 }
