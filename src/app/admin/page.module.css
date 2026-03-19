@@ -1,17 +1,15 @@
-.dashboard h2 {
-  margin-bottom: 1.5rem;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--foreground);
+.dashboard {
+  width: 100%;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 500px;
 }
 
 .table th, .table td {
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   text-align: left;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
@@ -21,41 +19,62 @@
   font-weight: 700;
   color: #64748b;
   background-color: #f8fafc;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .thumb {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   object-fit: cover;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
 }
 
+.thumbPlaceholder {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  background-color: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+}
+
 .actions {
   display: flex;
   gap: 0.5rem;
+  align-items: center;
 }
 
 .actions button {
-  padding: 0.45rem 0.85rem;
-  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
 }
 
+/* ===== HEADER ROW ===== */
 .headerRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
+/* ===== FILTERS ===== */
 .filtersRow {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.filtersLabel {
+  font-weight: 600;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  white-space: nowrap;
 }
 
 .pillsContainer {
@@ -65,19 +84,20 @@
 }
 
 .pill {
-  padding: 0.4rem 1rem;
+  padding: 0.35rem 0.9rem;
   border-radius: 9999px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid #e5e7eb;
+  transition: all 0.15s ease;
+  border: 1.5px solid #e5e7eb;
+  line-height: 1.4;
 }
 
 .pillActive {
-  background-color: #111;
+  background-color: #4338ca;
   color: #fff;
-  border-color: #111;
+  border-color: #4338ca;
 }
 
 .pill:not(.pillActive) {
@@ -86,35 +106,65 @@
 }
 
 .pill:not(.pillActive):hover {
-  background-color: #f9fafb;
+  border-color: #a5b4fc;
+  color: #4338ca;
 }
 
+/* ===== CATEGORY BADGE ===== */
 .categoryBadge {
-  background-color: #f1f5f9;
-  padding: 0.35rem 0.65rem;
+  background-color: #eef2ff;
+  padding: 0.3rem 0.65rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: #475569;
+  color: #4338ca;
+  white-space: nowrap;
 }
 
-.thumbPlaceholder {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-md);
-  background-color: #f1f5f9;
-  border: 1px dashed #cbd5e1;
-}
-
+/* ===== PAGINATION ===== */
 .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.25rem 1.5rem;
+  padding: 1rem 1.25rem;
   background-color: #fff;
+  gap: 1rem;
 }
 
 .pageInfo {
   font-size: 0.875rem;
   color: var(--text-muted);
+  text-align: center;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  .headerRow a,
+  .headerRow button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filtersRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .table th:nth-child(2),
+  .table td:nth-child(2) {
+    display: none;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+    padding: 0.875rem 1rem;
+  }
 }
