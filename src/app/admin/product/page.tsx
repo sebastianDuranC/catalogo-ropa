@@ -5,32 +5,22 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import classes from './page.module.css';
 
-async function uploadToCloudinary(file: File): Promise<string> {
-  const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
-  const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
-
-  if (!cloudName || !uploadPreset) {
-    throw new Error('Variables de entorno de Cloudinary no configuradas.');
-  }
-
+async function uploadImage(file: File): Promise<string> {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('upload_preset', uploadPreset);
-  formData.append('folder', 'catalogo-ropa');
-  formData.append('background_removal', 'cloudinary_ai');
 
-  const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+  const response = await fetch('/api/upload', {
     method: 'POST',
     body: formData,
   });
 
   if (!response.ok) {
     const error = await response.json();
-    throw new Error(error.error?.message || 'Upload failed');
+    throw new Error(error.error || 'Error al subir la imagen.');
   }
 
   const data = await response.json();
-  return data.secure_url;
+  return data.url;
 }
 
 function ProductFormContent() {
@@ -75,14 +65,14 @@ function ProductFormContent() {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) { setUploadError('Solo se permiten imágenes.'); return; }
-    if (file.size > 10 * 1024 * 1024) { setUploadError('La imagen no puede superar los 10 MB.'); return; }
+    if (file.size > 15 * 1024 * 1024) { setUploadError('La imagen no puede superar los 15 MB.'); return; }
 
     setUploadError('');
     setPreview(URL.createObjectURL(file));
     setUploading(true);
 
     try {
-      const url = await uploadToCloudinary(file);
+      const url = await uploadImage(file);
       setFormData(prev => ({ ...prev, photo: url }));
     } catch (err: any) {
       setUploadError(err.message || 'Error al subir la imagen.');
@@ -130,7 +120,7 @@ function ProductFormContent() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                   </svg>
                   <p>Haz clic para subir una foto</p>
-                  <span>JPG, PNG o WEBP · Máx. 10 MB</span>
+                  <span>JPG, PNG o WEBP · Máx. 15 MB</span>
                 </div>
               )}
               {uploading && (
