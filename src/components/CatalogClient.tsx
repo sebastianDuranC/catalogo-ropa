@@ -18,8 +18,8 @@ export default function CatalogClient({ business, products }: { business: Busine
   // Extraer categorías únicas
   const categories = ['Todos', ...Array.from(new Set(products.map(p => p.category).filter(Boolean)))];
 
-  const filteredProducts = selectedCategory === 'Todos' 
-    ? products 
+  const filteredProducts = selectedCategory === 'Todos'
+    ? products
     : products.filter(p => p.category === selectedCategory);
 
   return (
@@ -49,7 +49,7 @@ export default function CatalogClient({ business, products }: { business: Busine
       </header>
 
       <main className="container" style={{ padding: '0 1rem 3rem 1rem' }}>
-        
+
         {/* HERO BANNER */}
         <div className={classes.heroBanner}>
           <h2 className={classes.heroTitle}>{business.heroTitle || 'Encuentra tu estilo único'}</h2>
@@ -62,8 +62,8 @@ export default function CatalogClient({ business, products }: { business: Busine
         {categories.length > 1 && (
           <div className={classes.pillsContainer}>
             {categories.map(cat => (
-              <button 
-                key={cat} 
+              <button
+                key={cat}
                 className={`${classes.pill} ${selectedCategory === cat ? classes.pillActive : ''}`}
                 onClick={() => setSelectedCategory(cat)}
               >
@@ -72,7 +72,7 @@ export default function CatalogClient({ business, products }: { business: Busine
             ))}
           </div>
         )}
-        
+
         {/* GRID */}
         {filteredProducts.length === 0 ? (
           <p className={classes.emptyState}>No encontramos prendas en esta categoría.</p>
@@ -81,7 +81,7 @@ export default function CatalogClient({ business, products }: { business: Busine
             {filteredProducts.map(product => {
               const strPrice = `Bs. ${product.price.toFixed(2)}`;
               const photoLine = product.photo ? `\n\n🖼 Foto del producto: ${product.photo}` : '';
-              const message = `¡Hola! 👋 Estoy interesado/a en este producto de *${business.name}*:\n\n👗 *${product.name}*\n📋 Categoría: ${product.category}\n📏 Talla: ${product.size}\n🎨 Color: ${product.color}\n💵 Precio: ${strPrice}${photoLine}\n\n¿Está disponible?`;
+              const message = `¡Hola! 👋 Estoy interesado/a en este producto de *${business.name}*:\n\n👗*${product.name}*\n📋 Categoría: ${product.category}\n📏 Talla: ${product.size}\n🎨 Color: ${product.color}\n💵 Precio: ${strPrice}${photoLine}\n\n¿Está disponible?`;
               const whatsappUrl = `https://wa.me/${business.phone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
 
               return (
@@ -94,13 +94,13 @@ export default function CatalogClient({ business, products }: { business: Busine
                     <h3 className={classes.productName}>{product.name}</h3>
                     <p className={classes.productDescription}>{product.description}</p>
                     <div className={classes.sizeInfo}>Talla: <strong>{product.size}</strong></div>
-                    
+
                     <div className={classes.cardPriceRow}>
-                       <div className={classes.colorWrapper}>
-                          <span className={classes.colorDot}></span>
-                          <span className={classes.colorText}>{product.color}</span>
-                       </div>
-                       <span className={classes.cardPriceBold}>{strPrice}</span>
+                      <div className={classes.colorWrapper}>
+                        <span className={classes.colorDot}></span>
+                        <span className={classes.colorText}>{product.color}</span>
+                      </div>
+                      <span className={classes.cardPriceBold}>{strPrice}</span>
                     </div>
 
                     <a href={whatsappUrl} target="_blank" rel="noreferrer" className={`btn ${classes.buyBtn}`}>
@@ -113,19 +113,19 @@ export default function CatalogClient({ business, products }: { business: Busine
           </div>
         )}
       </main>
-      
+
       <footer className={classes.footer}>
         <div className="container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
-           {business.socialLinks && business.socialLinks.length > 0 && (
-              <div className={classes.socialIconsRow}>
-                {business.socialLinks.map((link, i) => (
-                  <a key={i} href={link.url} target="_blank" rel="noreferrer" className={classes.socialIconLink}>
-                    {link.iconUrl && <img src={link.iconUrl} alt="Social Icon" />}
-                  </a>
-                ))}
-              </div>
-            )}
-           <p>&copy; {new Date().getFullYear()} {business.name}. Todos los derechos reservados.</p>
+          {business.socialLinks && business.socialLinks.length > 0 && (
+            <div className={classes.socialIconsRow}>
+              {business.socialLinks.map((link, i) => (
+                <a key={i} href={link.url} target="_blank" rel="noreferrer" className={classes.socialIconLink}>
+                  {link.iconUrl && <img src={link.iconUrl} alt="Social Icon" />}
+                </a>
+              ))}
+            </div>
+          )}
+          <p>&copy; {new Date().getFullYear()} {business.name}. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
