@@ -17,6 +17,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
   formData.append('file', file);
   formData.append('upload_preset', uploadPreset);
   formData.append('folder', 'catalogo-ropa');
+  formData.append('background_removal', 'cloudinary_ai');
 
   const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
     method: 'POST',

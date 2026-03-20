@@ -4,6 +4,14 @@ import { useState } from 'react';
 import { BusinessInfo, Product } from '@/lib/db';
 import classes from '@/app/page.module.css';
 
+/** Inserta la transformación e_background_removal en una URL de Cloudinary */
+function withBgRemoval(url: string): string {
+  if (!url || !url.includes('res.cloudinary.com')) return url;
+  // URL pattern: .../image/upload/v1234/folder/file.jpg
+  // Insert transformation after /upload/
+  return url.replace('/image/upload/', '/image/upload/e_background_removal/');
+}
+
 export default function CatalogClient({ business, products }: { business: BusinessInfo, products: Product[] }) {
   const [selectedCategory, setSelectedCategory] = useState<string>('Todos');
 
@@ -79,7 +87,7 @@ export default function CatalogClient({ business, products }: { business: Busine
               return (
                 <article key={product.id} className={classes.productCard}>
                   <div className={classes.imageWrapper}>
-                    <img src={product.photo} alt={product.name} loading="lazy" />
+                    <img src={withBgRemoval(product.photo)} alt={product.name} loading="lazy" />
                   </div>
                   <div className={classes.productInfo}>
                     <p className={classes.cardCategory}>{product.category}</p>
